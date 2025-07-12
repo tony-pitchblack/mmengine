@@ -265,7 +265,8 @@ class CheckpointHook(Hook):
             runner (Runner): The runner of the training process.
         """
         if self.out_dir is None:
-            self.out_dir = runner.work_dir
+            # Save checkpoints by default into log_dir/ckpt
+            self.out_dir = osp.join(runner.log_dir, 'ckpt')
 
         # If self.file_client_args is None, self.file_client will not
         # used in CheckpointHook. To avoid breaking backward compatibility,
@@ -279,14 +280,11 @@ class CheckpointHook(Hook):
         else:
             self.file_backend = self.file_client
 
-        # if `self.out_dir` is not equal to `runner.work_dir`, it means that
-        # `self.out_dir` is set so the final `self.out_dir` is the
-        # concatenation of `self.out_dir` and the last level directory of
-        # `runner.work_dir`
-        if self.out_dir != runner.work_dir:
+        # If user provided a different root directory, append timestamp
+        if self.out_dir != osp.join(runner.log_dir, 'ckpt'):
             basename = osp.basename(runner.work_dir.rstrip(osp.sep))
-            self.out_dir = self.file_backend.join_path(
-                self.out_dir, basename)  # type: ignore  # noqa: E501
+            self.out_dir = self.file_backend.join_path(  # type: ignore  # noqa: E501
+                self.out_dir, basename)
 
         runner.logger.info(f'Checkpoints will be saved to {self.out_dir}.')
 
@@ -456,7 +454,7 @@ class CheckpointHook(Hook):
         if not is_main_process():
             return
 
-        save_file = osp.join(runner.work_dir, 'last_checkpoint')
+        save_file = osp.join(runner.log_dir, 'last_checkpoint')
         with open(save_file, 'w') as f:
             f.write(self.last_ckpt)  # type: ignore
 

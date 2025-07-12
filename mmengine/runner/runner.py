@@ -1685,7 +1685,7 @@ class Runner:
         resume_from = None
         if self._resume and self._load_from is None:
             # auto resume from the latest checkpoint
-            resume_from = find_latest_checkpoint(self.work_dir)
+            resume_from = find_latest_checkpoint(self.log_dir)
             self.logger.info(
                 f'Auto resumed from the latest checkpoint {resume_from}.')
         elif self._resume and self._load_from is not None:
@@ -1951,7 +1951,7 @@ class Runner:
             sampler_seed=dict(type='DistSamplerSeedHook'),
             logger=dict(type='LoggerHook'),
             param_scheduler=dict(type='ParamSchedulerHook'),
-            checkpoint=dict(type='CheckpointHook', interval=1),
+            checkpoint=dict(type='CheckpointHook', interval=1, out_dir=osp.join(self._log_dir, 'ckpt')),
         )
         if hooks is not None:
             for name, hook in hooks.items():

@@ -1130,7 +1130,7 @@ class FlexibleRunner:
             resume_from = self._resume
         elif self._resume and self._load_from is None:
             # auto resume from the latest checkpoint
-            resume_from = find_latest_checkpoint(self.work_dir)
+            resume_from = find_latest_checkpoint(self.log_dir)
             self.logger.info(
                 f'Auto resumed from the latest checkpoint {resume_from}.')
         elif self._resume and self._load_from is not None:
