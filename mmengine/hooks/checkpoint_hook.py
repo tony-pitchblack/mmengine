@@ -540,7 +540,8 @@ class CheckpointHook(Hook):
                         f'The previous best checkpoint {best_ckpt_path} '
                         'is removed')
 
-            best_ckpt_name = f'best_{key_indicator}_{ckpt_filename}'
+            best_ckpt_name = f'best_{key_indicator}'
+
             # Replace illegal characters for filename with `_`
             best_ckpt_name = best_ckpt_name.replace('/', '_')
             if len(self.key_indicators) == 1:
