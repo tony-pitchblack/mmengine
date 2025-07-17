@@ -837,22 +837,25 @@ class MLflowVisBackend(BaseVisBackend):
         self._mlflow.end_run()
 
     def _flatten(self, d, parent_key='', sep='.') -> dict:
-        """Flatten the dict."""
-        items = dict()
-        for k, v in d.items():
-            new_key = parent_key + sep + k if parent_key else k
-            if isinstance(v, MutableMapping):
-                items.update(self._flatten(v, new_key, sep=sep))
-            elif isinstance(v, list):
-                if any(isinstance(x, dict) for x in v):
-                    for i, x in enumerate(v):
-                        items.update(
-                            self._flatten(x, new_key + sep + str(i), sep=sep))
-                else:
-                    items[new_key] = v
-            else:
-                items[new_key] = v
-        return items
+       if isinstance(d, dict):
+           items = {}
+           for k, v in d.items():
+               new_key = f'{parent_key}{sep}{k}' if parent_key else k
+               if isinstance(v, dict):
+                   items.update(self._flatten(v, new_key, sep=sep))
+               elif isinstance(v, (list, tuple)):
+                   if all(isinstance(x, dict) for x in v):
+                       for i, x in enumerate(v):
+                           items.update(
+                               self._flatten(x, f'{new_key}{sep}{i}', sep=sep)
+                           )
+                   else:
+                       items[new_key] = str(v)
+               else:
+                   items[new_key] = v
+           return items
+       else:
+           return {parent_key: d}
 
 
 @VISBACKENDS.register_module()
